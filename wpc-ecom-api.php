@@ -4,7 +4,7 @@
  * Plugin Name: Wpc Ecom Api
  * Plugin URI: https://github.com/sarthak090/wpc-ecom-api
  * Description: Advance Rest Api to reduce your server load
- * Version: 5.2.1
+ * Version: 1.0.0
  * Author: Sarthak Kaushik
  * Author URI: https://sarthakkaushik.dev
  * Text Domain: wpcecomapi
