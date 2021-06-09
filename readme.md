@@ -1,6 +1,16 @@
 # Wpc Ecom API
 This plugin will provide you API routes which will help you to build your own e-commerce platform.
 
+## How To Upload this plugin
+ - Download the plugin 
+ -  remove readme.md file and showcase folder 
+ -  Zip the file and don't change it's name
+ -  Go to plugin section in your wordpress site and click on add new
+ -  upload from zip
+
+![upload-plugin](showcase/3.png)
+
+
 GET ``/wp-json/wpc/v1/products``
 
 Returns all published products with following data.
