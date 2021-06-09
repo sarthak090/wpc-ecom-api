@@ -10,42 +10,13 @@
  * Text Domain: wpcecomapi
  
  */
-function wl_get_test($req)
-
-{
-    $customerId = $req['cid'];
-
-    if ($customerId) {
-        $customer_orders = get_posts(array(
-            'meta_key'    => '_customer_user',
-            'meta_value'  => $customerId,
-            'post_type'   => 'shop_order',
-            'post_status' => array_keys(wc_get_order_statuses()),
-            'numberposts' => -1
-        ));
-        $ordersId = [];
-        $i = 0;
-        foreach ($customer_orders as $order) {
-            $ordersId[$i] = $order->ID;
-            $i++;
-        }
-        return $ordersId;
-    }
-    return wpc_error_404();
-    // echo '<pre>';
-    // print_r($req['cid']);
-    // echo '</pre>';
-}
 
 
 function wl_get_all_products()
 {
-
-
     $products = wc_get_products(array(
         "status" => "published"
     ));
-
     return get_all_data_in_format_wc_products($products);
 }
 
@@ -66,7 +37,6 @@ function wl_get_all_categories()
 
     $product_categories = get_terms('product_cat', $args);
     foreach ($product_categories as $catg) {
-        // $data[$i] = $catg;
         $thumbnail_id = get_term_meta($catg->term_id, 'thumbnail_id', true);
         $data[$i]['id'] = $catg->term_id;
         $data[$i]['name'] = $catg->name;
@@ -80,7 +50,6 @@ function wl_get_all_categories()
 function wl_get_categories_products($req)
 {
     $slug = $req['slug'];
-
     $products = wc_get_products(array(
         'category' => array($slug),
     ));
@@ -184,18 +153,11 @@ function get_all_data_in_format_wc_products($products)
         $data[$i]['name'] = $product->get_title();
         $data[$i]['slug'] = $product->get_slug();
         $data[$i]['price'] =  intval($product->get_price());
-        // $data[$i]['price'] = $productData->get_price();
         $data[$i]['sale_price'] = intval($product->get_sale_price());
         $data[$i]['featuredImage'] = wp_get_attachment_image_url($product->get_image_id(), 'full');
-        // $data[$i]['featuredImage'] = wp_get_attachment_image_url($productData->get_image_id(), 'full');
         $data[$i]['ratings'] = intval($product->get_average_rating());
-        // $data[$i]['categories'] = get_the_terms($product->get_id(), 'product_cat');
         $data[$i]['seller'] = get_userdata(get_post_field("post_author", $product->get_id()))->user_nicename;
-        // $data[$i]['test'] = get_userdata(get_post_field("post_author", $productData->get_id()))->user_nicename;
 
-        // echo '<pre>';
-        // print_r($productData);
-        // echo '</pre>';
         $i++;
     }
 
@@ -223,8 +185,6 @@ function single_product_data($product)
     $data['seller'] = get_userdata(get_post_field("post_author", $product->get_id()))->user_nicename;
     $data['isDownloadable'] = $product->is_downloadable();
     $data['crossSellCount'] = count($product->get_cross_sell_ids());
-    // $args = array('post_type' => 'product', 'post_id' => $product->get_id());
-    // $data['reviewsList'] = get_comments($args);
     $attachment_ids = $product->get_gallery_image_ids();
     $data['gallImgCOunt'] = count($attachment_ids);
 
@@ -266,22 +226,6 @@ function single_product_data($product)
         $data['dimension']['length'] = $product->get_length();
         $data['dimension']['height'] = $product->get_height();
     }
-
-    // if ($product->is_downloadable()) {
-
-    //     foreach ($product->get_downloads() as $key_download_id => $download) {
-    //         $data[$i]['download_name'] = $download->get_name();
-    //         $data[$i]['download_link'] = $download->get_file();
-    //         $data[$i]['download_type'] = $download->get_file_type();
-    //         $data[$i]['download_ext'] = $download->get_file_extension();
-    //         $data[$i]['id'] = $key_download_id;
-
-    //         $i++;
-    //     }
-    //     $data['downloadLimit'] = $product->get_download_limit();
-    // }
-
-
 
     return $data;
 }
@@ -339,7 +283,7 @@ function wpc_get_products_for_cart_by_id($req)
         }
         $data["discountData"]["isValid"] = $c->is_valid();
 
-        $data["discountData"]["msg"] = "Coupon is Invalid";
+        $data["discountData"]["msg"] = "Coupon is valid";
     }
     if (count($data) == 0) {
         return wpc_error_404();
@@ -352,9 +296,6 @@ function wpc_check_coupon_valid($req)
 
     if ($req['couponcode']) {
         $coupon = new WC_Coupon($req['couponcode']);
-
-        // return $req['couponcode'];
-
         return $coupon->is_valid();
     }
     return wpc_error_404();
@@ -370,7 +311,7 @@ function wpc_get_all_available_payment_gateways()
             $data[$i]['id'] = $gateway->id;
             $data[$i]['title'] = $gateway->title;
             $data[$i]['description'] = $gateway->description;
-            // $data[$i]['detail'] = $gateway->account_details;
+
             $i++;
         }
     }
@@ -400,10 +341,6 @@ function wpc_get_all_orders_id_of_customer($req)
     return wpc_error_404();
 }
 add_action('rest_api_init', function () {
-    register_rest_route('wpc/v1', 'test', array(
-        'methods' => 'GET',
-        'callback' => 'wl_get_test',
-    ));
     register_rest_route('wpc/v1', 'products', array(
         'methods' => 'GET',
         'callback' => 'wl_get_all_products',
@@ -446,38 +383,4 @@ add_action('rest_api_init', function () {
         'methods' => 'GET',
         'callback' => 'wpc_get_all_orders_id_of_customer',
     ));
-    // register_rest_route('wpr/v1', 'post/(?P<slug>[a-zA-Z0-9-]+)', array(
-    //     'methods' => 'GET',
-    //     'callback' => 'wpr_get_single_post',
-    // ));
-    // register_rest_route('wpr/v1', 'category/(?P<id>[a-zA-Z0-9-]+)', array(
-    //     'methods' => 'GET',
-    //     'callback' => 'wpr_get_category_list',
-    // ));
-    // register_rest_route('wpr/v1', 'category/(?P<id>[a-zA-Z0-9-]+)', array(
-    //     'methods' => 'GET',
-    //     'callback' => 'wpr_get_category_posts',
-    // ));
-
-    // register_rest_route('wpr/v1', 'tag/(?P<slug>[a-zA-Z0-9-]+)', array(
-    //     'methods' => 'GET',
-    //     'callback' => 'wpr_get_tag_posts',
-    // ));
-
-    // register_rest_route('wpr/v1', 'authors', array(
-    //     'methods' => 'GET',
-    //     'callback' => 'wpr_get_author',
-    // ));
-    // register_rest_route('wpr/v1', 'author/(?P<id>[a-zA-Z0-9-]+)', array(
-    //     'methods' => 'GET',
-    //     'callback' => 'wpr_get_author_posts',
-    // ));
-    // register_rest_route('wpr/v1', 'search', array(
-    //     'methods' => 'GET',
-    //     'callback' => 'wpr_get_search_posts',
-    // ));
-    // register_rest_route('wpr/v1', 'add-comment-next', array(
-    //     'methods' => 'POST',
-    //     'callback' => 'wpr_add_comment',
-    // ));
 });
